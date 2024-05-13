@@ -1,5 +1,13 @@
 numpy
 matplotlib
+scipy
+xarray
+halo
 torch
-pandas
-xlrd
+torchvision
+torchaudio
+pytorch_lightning
+scikit-learn
+opencv-python
+pyprojroot
+umap-learn
