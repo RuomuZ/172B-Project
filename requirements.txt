@@ -11,3 +11,5 @@ scikit-learn
 opencv-python
 pyprojroot
 umap-learn
+imagecodecs
+tifffile
