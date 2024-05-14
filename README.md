@@ -1,2 +1,2 @@
 # 172B-Project
-Mine-type detection
+Magazine segmentation
