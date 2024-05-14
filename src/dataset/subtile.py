@@ -94,7 +94,7 @@ class Subtile:
     ):
         subtiled_ground_truth.to_netcdf(
             subtile_directory
-            / subtiled_ground_truth.attrs["id"]
+            / str(subtiled_ground_truth.attrs["id"])
             / f"{x}_{y}"
             / f"mask.nc"
         )
@@ -103,8 +103,6 @@ class Subtile:
         directory_to_save.mkdir(parents=True, exist_ok=True)
         subtile_directory = directory_to_save / "subtiles"
         subtile_directory.mkdir(parents=True, exist_ok=True)
-
-        # iterate over the slice_size
         for x in range(self.slice_size[0]):
             for y in range(self.slice_size[1]):
                 subtile, subtiled_mask = (
@@ -120,13 +118,8 @@ class Subtile:
                 assert Path(
                     subtile_directory / self.id / f"{x}_{y}"
                 ).exists()
-
-                # save the subtile of the image at the images directory
-
                 self._save_image(subtile, subtile_directory, x, y)
-                # save the subtile of the label at the labels directory
                 self._save_label(subtiled_mask, subtile_directory, x, y)
-        # clear the data because it has been saved into the subtiled files
         self.image = None
         self.mask = None
 
@@ -136,15 +129,7 @@ class Subtile:
         directory_to_load: Path,
         x: int,
         y: int,
-    ) -> List[xr.DataArray]:
-        """
-        Loads a subtile file ({id}_{x}_{y}.npy)
-
-        Parameters:
-            subtile_file: path to the subtile file
-        Returns:
-            List[xr.DataArray]
-        """
+    ):
         tile_dir = directory_to_load / "subtiles" / str(self.id)
         subtile_file = tile_dir / f"{x}_{y}" / f"{x}_{y}.nc"
         assert subtile_file.exists() == True, f"{subtile_file} does not exist"
@@ -165,17 +150,7 @@ class Subtile:
         directory_to_load: Path,
         slice_size,
         has_gt: bool = True,
-    ):
-        """
-        Loads a directory of subtile files ({parent_tile_id}_{x}_{y}.npy)
-
-        Parameters:
-            directory_to_load: Path to the subtile file directory
-            satellite_type_list: list of satellites to load
-            slice_size: slice size of the subtile
-        Returns:
-            List[xr.DataArray]
-        """            
+    ):  
         path_str = str(directory_to_load).split("/")[-1].split("_")
         x = path_str[0]
         y = path_str[1]
@@ -197,48 +172,3 @@ class Subtile:
             slice_size=slice_size,
         )
         return subtile
-
-
-    def restitch(
-        self, directory_to_load: Path
-    ) -> None:
-        """
-        Restitiches the subtile images to their original image
-
-        Parameters:
-            directory_to_load: path to the directory where the subtile images and labels are loaded from
-            satellite_type_list: list of satellite types that dictates which satellites will be loaded
-
-        Returns:
-            result: Tuple containing:
-                restitched_image: List[xr.DataArray]
-                restitched_label: xr.DataArray
-        """
-        # even though this is slightly less efficient that iterating over once,
-        # it's way more readable and understandable for everyone
-
-        # add the ground truth to the satellite_type_list so this
-        # operation below will retrieve it for us
-        
-        #satellite_type_list_with_gt = satellite_type_list + [SatelliteType.GT]
-
-        list_of_data_array = list()
-        for satellite_type in satellite_type_list_with_gt:
-            row = []
-            for x in range(self.slice_size[0]):
-                col = []
-                for y in range(self.slice_size[1]):
-                    data_array = self.load_subtile(
-                        directory_to_load, [satellite_type], x, y
-                    )[0]
-                    # remove the subtile attributes now that they are no longer needed
-                    del data_array.attrs["x"]
-                    del data_array.attrs["y"]
-
-                    col.append(data_array)
-                row.append(xr.concat(col, dim="width"))
-            data_array = xr.concat(row, dim="height")
-            list_of_data_array.append(data_array)
-
-        self.satellite_list = list_of_data_array[:-1]
-        self.ground_truth = list_of_data_array[-1]

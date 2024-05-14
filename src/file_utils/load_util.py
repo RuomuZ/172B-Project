@@ -20,7 +20,8 @@ def process_file_name(file_path: Path):
 #load a image into np.ndarray
 def load_image(image_path):
     path_str = str(image_path)
-    return cv2.imread(path_str).astype(np.int16)
+    img = cv2.cvtColor(cv2.imread(path_str).astype(np.uint8), cv2.COLOR_BGR2RGB)
+    return img
 
 
 #load images and masks given dirs, and return two list of xr.array.
@@ -32,21 +33,29 @@ def load_images_masks(list_of_data_dir, list_of_mask_dir):
         print(i)
         a_x = load_image(list_of_data_dir[i])
         a_y = load_image(list_of_mask_dir[i])
+        if a_x.shape[0] < 3000:
+            print(a_x.shape)
+            a_x = np.swapaxes(a_x, 0, 1)
+            a_y = np.swapaxes(a_y, 0, 1)
+            print(f"after swap: {a_x.shape}")
+        a_x = cv2.resize(a_x, (2480, 3508)).astype(np.int16)
+        a_y = cv2.resize(a_y, (2480, 3508)).astype(np.int16)
+        print(f"after resize: {a_x.shape}")
         x_array = xr.DataArray(
         data=a_x,
         dims=("height", "width", "band"),
         coords={
             "height": range(a_x.shape[0]),
             "width": range(a_x.shape[1]),
-            "band": range(a_x.shape[2])})
+            "band": range(3)})
         x_array.attrs["id"] = i
         y_array = xr.DataArray(
         data=a_y,
         dims=("height", "width", "band"),
         coords={
-            "height": range(a_x.shape[0]),
-            "width": range(a_x.shape[1]),
-            "band": range(a_x.shape[2])})
+            "height": range(a_y.shape[0]),
+            "width": range(a_y.shape[1]),
+            "band": range(3)})
         y_array.attrs["id"] = str(i)
         X.append(x_array)
         y.append(y_array)
