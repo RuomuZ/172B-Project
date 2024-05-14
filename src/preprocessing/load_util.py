@@ -1,8 +1,6 @@
 import sys
 from pathlib import Path
-from typing import Callable, List, Tuple
 import numpy as np
-import xarray as xr
 import tifffile
 import cv2
 
@@ -22,6 +20,7 @@ def load_image(image_path):
     path_str = str(image_path)
     file_extension = path_str.split("/")[-1].split(".")[-1]
     if file_extension == "tif":
+        print("here")
         return tifffile.imread(path_str, chunkdtype=np.float32)
     else:
         return cv2.imread(path_str)
@@ -32,11 +31,8 @@ def load_images_masks(list_of_data_dir, list_of_mask_dir):
     X = []
     y = []
     for i in range(len(list_of_data_dir)):
-        print(i)
         X.append(load_image(list_of_data_dir[i]))
         y.append(load_image(list_of_mask_dir[i]))
-    print(len(X))
-    print(len(y))
     return X,y
 
 
