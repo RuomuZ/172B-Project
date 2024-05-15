@@ -1,2 +1,2 @@
 # 172B-Project
-Magazine segmentation
+Magazine Segmentation
