@@ -1,0 +1,16 @@
+1. Title of Database
+-- Newspaper and magazine images segmentation dataset
+ 
+2. Sources:
+-- Creators: Aleksey Vil’kin and Ilia Safonov
+     -- NRNU MEPhI, Moscow, Russia
+-- Date: 2012
+ 
+3. Past Usage:
+-- A. M. Vil’kin, I. V. Safonov, M. A. Egorova. Algorithm for segmentation of documents based on texture features // Pattern Recognition and Image Analysis March 2013, Volume 23, Issue 1, pp 153-159
+ 
+4. Relevant Information Paragraph:
+-- This dataset was collected for training and validation of machine learning algorithm for classification regions of documents on text, picture and background areas. It contains 101 scanned images of various newspapers and magazines in Russian. Most of the images have resolution 300 dpi and size A4, about 2400x3500 pixels. For all images ground truth pixel-based masks were manually created. The ground truth masks named like original images with postfix “_m”. There are three classes – text area, picture area, background. Pixels on the mask with color 255, 0, 0 (rgb, red color) correspond to picture area, pixels with color 0, 0, 255 (rgb, blue color) correspond to text area, all other pixels correspond to background. Images with background of different colors are in the dataset. The images and masks are presented in PNG format with lossless compression. 
+ 
+5. Number of Instances:
+-- 101 scanned pages from different newspapers and magazines in Russian with ground truth pixel-based masks.
