@@ -1,0 +1,15 @@
+numpy
+matplotlib
+scipy
+xarray
+halo
+torch
+torchvision
+torchaudio
+pytorch_lightning
+scikit-learn
+opencv-python
+pyprojroot
+umap-learn
+imagecodecs
+tifffile
