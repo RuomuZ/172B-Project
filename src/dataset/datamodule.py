@@ -18,6 +18,8 @@ sys.path.append(".")
 from src.file_utils.load_util import *
 from src.dataset.subtile import Subtile
 from src.dataset.dataset import MGZDataset
+from src.dataset.aug import *
+
 
 def collate_fn(batch):
     Xs = []
@@ -40,6 +42,13 @@ class MGZDataModule(pl.LightningDataModule):
         seed: int = 12378921,
         slice_size: Tuple[int, int] = (4, 4),
         train_size: float = 0.8,
+        transform_list: list = [
+            torchvision_transforms.RandomApply([AddNoise()], p=0.5),
+            torchvision_transforms.RandomApply([Blur()], p=0.5),
+            torchvision_transforms.RandomApply([RandomHFlip()], p=0.5),
+            torchvision_transforms.RandomApply([RandomVFlip()], p=0.5),
+            ToTensor(),
+        ],
     ):
         super(MGZDataModule, self).__init__()
         self.processed_dir = processed_dir
@@ -50,6 +59,7 @@ class MGZDataModule(pl.LightningDataModule):
         self.train_size = train_size
         self.train_dir = self.processed_dir / "Train"
         self.val_dir = self.processed_dir / "Val"
+        self.transform = torchvision_transforms.transforms.Compose(transform_list)
 
 
     def load_and_preprocess(self, dir: Path):
@@ -76,8 +86,8 @@ class MGZDataModule(pl.LightningDataModule):
 
     def setup(self, stage: str) -> None:
         if stage == "fit":
-            self.train_dataset = MGZDataset(self.train_dir, self.slice_size)
-            self.val_dataset = MGZDataset(self.val_dir, self.slice_size)
+            self.train_dataset = MGZDataset(self.train_dir, self.transform, self.slice_size)
+            self.val_dataset = MGZDataset(self.val_dir, torchvision_transforms.transforms.Compose([]), self.slice_size)
 
 
     def train_dataloader(self) -> torch.utils.data.DataLoader:
