@@ -123,14 +123,13 @@ class Subtile:
         self.image = None
         self.mask = None
 
-
+    @staticmethod
     def load_subtile(
-        self,
         directory_to_load: Path,
         x: int,
         y: int,
     ):
-        tile_dir = directory_to_load / "subtiles" / str(self.id)
+        tile_dir = directory_to_load
         subtile_file = tile_dir / f"{x}_{y}" / f"{x}_{y}.nc"
         assert subtile_file.exists() == True, f"{subtile_file} does not exist"
         data_array = xr.load_dataarray(subtile_file)
@@ -172,3 +171,26 @@ class Subtile:
             slice_size=slice_size,
         )
         return subtile
+
+
+    @staticmethod
+    def restich(dir, slice_size = (4,4)):
+        row_x = []
+        row_y = []
+        for x in range(slice_size[0]):
+            col_x = []
+            col_y = []
+            for y in range(slice_size[1]):
+                data_array_x, data_array_y = Subtile.load_subtile(dir, x, y)
+                    # remove the subtile attributes now that they are no longer needed
+                del data_array_x.attrs["x"]
+                del data_array_x.attrs["y"]
+                del data_array_y.attrs["x"]
+                del data_array_y.attrs["y"]
+                col_x.append(data_array_x)
+                col_y.append(data_array_y)
+            row_x.append(xr.concat(col_x, dim="width"))
+            row_y.append(xr.concat(col_y, dim="width"))
+        original_image = xr.concat(row_x, dim="height")
+        original_mask = xr.concat(row_y, dim="height")
+        return original_image, original_mask
