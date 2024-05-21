@@ -104,7 +104,6 @@ class AddNoise(object):
         # add the noise to the img and clip between 0 and 1
         #img = np.clip(img + N_dist, 0, 1)
         # return the {X : img, y : mask}
-        print("noise")
         return {"X" : img, "y" : mask}
 
 
