@@ -87,7 +87,7 @@ class MGZDataModule(pl.LightningDataModule):
     def setup(self, stage: str) -> None:
         if stage == "fit":
             self.train_dataset = MGZDataset(self.train_dir, self.transform, self.slice_size)
-            self.val_dataset = MGZDataset(self.val_dir, torchvision_transforms.transforms.Compose([]), self.slice_size)
+            self.val_dataset = MGZDataset(self.val_dir, torchvision_transforms.transforms.Compose([ToTensor()]), self.slice_size)
 
 
     def train_dataloader(self) -> torch.utils.data.DataLoader:
