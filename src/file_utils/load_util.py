@@ -9,10 +9,10 @@ sys.path.append(".")
 
 #return a list of dirs of images and a list of dirs of masks
 def process_file_name(file_path: Path):
-    list_of_mask = list(file_path.glob(f'*_*'))
+    list_of_mask = list(file_path.glob('*_*'))
     list_of_data = [None] * len(list_of_mask)
     for i in range(len(list_of_mask)):
-        prefix = str(list_of_mask[i]).split("/")[-1].split("_")[0]
+        prefix = list_of_mask[i].name.split("_")[0]
         list_of_data[i] = list(file_path.glob(f'{prefix}.*'))[0]
     return (list_of_data, list_of_mask)
 
