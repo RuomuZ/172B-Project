@@ -29,7 +29,6 @@ class MGZDataset(Dataset):
         subt = Subtile.load_subtile_by_dir(self.subtile_dirs[idx], self.slice_size)
         X = subt.image.values
         y = subt.mask.values
-        print(X.shape)
         result = self.transform({"X" : X, "y" : y})
         X = result["X"].permute(2, 0 ,1)
         y = result["y"].permute(2, 0 ,1)

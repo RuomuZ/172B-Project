@@ -11,7 +11,7 @@ from src.dataset.datamodule import MGZDataModule
 from src.dataset.aug import Blur, RandomHFlip, RandomVFlip, ToTensor
 ROOT = Path.cwd()
 
-processed_dir = ROOT / "data" / "processed_exp3"
+processed_dir = ROOT / "data" / "processed"
 raw_dir = ROOT / "data" / "raw"
 
 
