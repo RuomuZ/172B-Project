@@ -153,7 +153,6 @@ class Subtile:
         path_str = str(directory_to_load).split("/")[-1].split("_")
         x = path_str[0]
         y = path_str[1]
-        print(str(directory_to_load / f"{x}_{y}.nc"))
         subtile_file = directory_to_load / f"{x}_{y}.nc"
         assert subtile_file.exists() == True, f"{subtile_file} does not exist"
         data_array = xr.load_dataarray(subtile_file)
