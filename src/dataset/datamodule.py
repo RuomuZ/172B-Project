@@ -88,6 +88,7 @@ class MGZDataModule(pl.LightningDataModule):
 
     def setup(self, stage: str) -> None:
         if stage == "fit":
+            print(self.train_dir, self.val_dir)
             self.train_dataset = MGZDataset(self.train_dir, self.transform, self.slice_size)
             self.val_dataset = MGZDataset(self.val_dir, self.transform, self.slice_size)
 
