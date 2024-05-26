@@ -9,10 +9,10 @@ sys.path.append(".")
 
 #return a list of dirs of images and a list of dirs of masks
 def process_file_name(file_path: Path):
-    list_of_mask = list(file_path.glob(f'*_*'))
+    list_of_mask = list(file_path.glob('*_*'))
     list_of_data = [None] * len(list_of_mask)
     for i in range(len(list_of_mask)):
-        prefix = str(list_of_mask[i]).split("/")[-1].split("_")[0]
+        prefix = list_of_mask[i].name.split("_")[0]
         list_of_data[i] = list(file_path.glob(f'{prefix}.*'))[0]
     return (list_of_data, list_of_mask)
 
@@ -39,7 +39,9 @@ def load_images_masks(list_of_data_dir, list_of_mask_dir):
             a_y = np.swapaxes(a_y, 0, 1)
             print(f"after swap: {a_x.shape}")
         a_x = cv2.resize(a_x, (2480, 3508)).astype(np.float32)
+        a_x = cv2.cvtColor(a_x, cv2.COLOR_BGR2RGB)
         a_y = cv2.resize(a_y, (2480, 3508)).astype(np.float32)
+        a_y = cv2.cvtColor(a_y, cv2.COLOR_BGR2RGB)
         print(f"after resize: {a_x.shape}")
         x_array = xr.DataArray(
         data=a_x,

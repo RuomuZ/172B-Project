@@ -13,3 +13,5 @@ pyprojroot
 umap-learn
 imagecodecs
 tifffile
+rich
+wandb
