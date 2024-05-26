@@ -4,6 +4,7 @@ from typing import List, Tuple
 
 import numpy as np
 import xarray as xr
+import os
 
 
 
@@ -150,7 +151,7 @@ class Subtile:
         slice_size,
         has_gt: bool = True,
     ):  
-        path_str = str(directory_to_load).split("/")[-1].split("_")
+        path_str = str(directory_to_load).split(os.sep)[-1].split("_")
         x = path_str[0]
         y = path_str[1]
         subtile_file = directory_to_load / f"{x}_{y}.nc"

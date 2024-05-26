@@ -7,6 +7,7 @@ import torch.nn as nn
 from pathlib import Path
 from src.dataset.datamodule import MGZDataModule
 from models.segformer import SegFormerModel  # Importing your SegFormer model
+import torch.nn.functional as F
 
 # Setup data paths and datamodule
 ROOT = Path.cwd()
@@ -35,10 +36,13 @@ for epoch in range(num_epochs):
     for images, masks in train_loader:
         images = images.to(device)
         masks = masks.to(device)
+        # print(images.shape, masks.shape)
 
         # Forward pass
         outputs = model(images)
-        loss = criterion(outputs, masks)
+        outputs= F.interpolate(outputs, size=masks.shape[2:], mode='bilinear', align_corners=False)
+        # print(outputs.shape, masks.shape)
+        loss = criterion(outputs, masks.squeeze(1))
 
         # Backward and optimize
         optimizer.zero_grad()
