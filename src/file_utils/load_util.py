@@ -38,8 +38,10 @@ def load_images_masks(list_of_data_dir, list_of_mask_dir):
             a_x = np.swapaxes(a_x, 0, 1)
             a_y = np.swapaxes(a_y, 0, 1)
             print(f"after swap: {a_x.shape}")
-        a_x = cv2.resize(a_x, (2480, 3508)).astype(np.int16)
-        a_y = cv2.resize(a_y, (2480, 3508)).astype(np.int16)
+        a_x = cv2.resize(a_x, (2480, 3508)).astype(np.float32)
+        a_x = cv2.cvtColor(a_x, cv2.COLOR_BGR2RGB)
+        a_y = cv2.resize(a_y, (2480, 3508)).astype(np.float32)
+        a_y = cv2.cvtColor(a_y, cv2.COLOR_BGR2RGB)
         print(f"after resize: {a_x.shape}")
         x_array = xr.DataArray(
         data=a_x,

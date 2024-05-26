@@ -30,8 +30,8 @@ class MGZDataset(Dataset):
         X = subt.image.values
         y = subt.mask.values
         result = self.transform({"X" : X, "y" : y})
-        X = result["X"]
-        y = result["y"]
+        X = result["X"].permute(2, 0 ,1)
+        y = result["y"].permute(2, 0 ,1)
         return (X, y)
 
     def displays(self):

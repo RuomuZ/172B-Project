@@ -49,6 +49,7 @@ class MGZDataModule(pl.LightningDataModule):
             torchvision_transforms.RandomApply([RandomVFlip()], p=0.5),
             ToTensor(),
         ],
+        num_workers = 3
     ):
         super(MGZDataModule, self).__init__()
         self.processed_dir = processed_dir
@@ -60,6 +61,7 @@ class MGZDataModule(pl.LightningDataModule):
         self.train_dir = self.processed_dir / "Train"
         self.val_dir = self.processed_dir / "Val"
         self.transform = torchvision_transforms.transforms.Compose(transform_list)
+        self.num_workers = num_workers
 
 
     def load_and_preprocess(self, dir: Path):
@@ -87,11 +89,11 @@ class MGZDataModule(pl.LightningDataModule):
     def setup(self, stage: str) -> None:
         if stage == "fit":
             self.train_dataset = MGZDataset(self.train_dir, self.transform, self.slice_size)
-            self.val_dataset = MGZDataset(self.val_dir, torchvision_transforms.transforms.Compose([]), self.slice_size)
+            self.val_dataset = MGZDataset(self.val_dir, self.transform, self.slice_size)
 
 
     def train_dataloader(self) -> torch.utils.data.DataLoader:
-        return torch.utils.data.DataLoader(self.train_dataset, batch_size=self.batch_size, collate_fn=collate_fn)
+        return torch.utils.data.DataLoader(self.train_dataset, batch_size=self.batch_size, collate_fn=collate_fn, num_workers = self.num_workers)
 
     def val_dataloader(self) -> torch.utils.data.DataLoader:
-        return torch.utils.data.DataLoader(self.train_dataset, batch_size=self.batch_size, collate_fn=collate_fn)
+        return torch.utils.data.DataLoader(self.train_dataset, batch_size=self.batch_size, collate_fn=collate_fn, num_workers = self.num_workers)
