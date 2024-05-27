@@ -61,6 +61,7 @@ def load_images_masks(list_of_data_dir, list_of_mask_dir):
         y_array.attrs["id"] = str(i)
         X.append(x_array)
         y.append(y_array)
+
     return X, y
 
 

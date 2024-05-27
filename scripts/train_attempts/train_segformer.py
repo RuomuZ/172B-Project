@@ -36,13 +36,21 @@ for epoch in range(num_epochs):
     for images, masks in train_loader:
         images = images.to(device)
         masks = masks.to(device)
-        # print(images.shape, masks.shape)
+
+        masks = masks.long()
 
         # Forward pass
         outputs = model(images)
-        outputs= F.interpolate(outputs, size=masks.shape[2:], mode='bilinear', align_corners=False)
-        # print(outputs.shape, masks.shape)
-        loss = criterion(outputs, masks.squeeze(1))
+
+        # Debugging shapes
+        # print("Output shape before interpolation:", outputs.shape)
+        # print("Mask shape expected:", masks.shape)
+
+        # Interpolating to match mask size
+        outputs = F.interpolate(outputs, size=(masks.shape[1], masks.shape[2]), mode='bilinear', align_corners=False)
+
+        # Compute loss
+        loss = criterion(outputs, masks)  # No squeeze needed since masks are already [batch_size, height, width]
 
         # Backward and optimize
         optimizer.zero_grad()
@@ -53,5 +61,4 @@ for epoch in range(num_epochs):
 
     print(f"Epoch [{epoch+1}/{num_epochs}], Loss: {epoch_loss / len(train_loader)}")
 
-# Save the model
 torch.save(model.state_dict(), "segformer_model.pth")
