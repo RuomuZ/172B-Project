@@ -41,6 +41,10 @@ class MGZDataset(Dataset):
         result = self.transform({"X" : X, "y" : y})
         X = result["X"].permute(2, 0 ,1)
         y = result["y"]
+
+        #IF TRAINING NOT WORKING FOR  ANYTHING  OTHER THAN VIT< UNCOMMENT THE ABOVE 3 LINES AND COMMENT THE BELOW 1 LINE
+        
+        # X = self.transform(X).permute(2, 0, 1)
         labels_single_channel = np.full(y.shape[:2], 2, dtype=int)  # Default to class 2
 
         # Class 0: Red only (255, 0, 0)

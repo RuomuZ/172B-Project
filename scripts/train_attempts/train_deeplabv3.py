@@ -12,12 +12,12 @@ from models.deeplabV3 import DeepLabV3ResNet50  # Importing the DeepLabV3 model 
 ROOT = Path.cwd()
 processed_dir = ROOT / "data" / "processed"
 raw_dir = ROOT / "data" / "raw"
-datamodule = MGZDataModule(processed_dir, raw_dir, batch_size=1, slice_size=(224, 224))  # Ensure slice_size matches DeepLabV3 input
+datamodule = MGZDataModule(processed_dir, raw_dir, batch_size=2, slice_size=(4, 4))  # Ensure slice_size matches DeepLabV3 input
 datamodule.prepare_data()
 datamodule.setup("fit")
 
 # Create DataLoader
-train_loader = DataLoader(datamodule.train_dataset, batch_size=1, shuffle=True)
+train_loader = DataLoader(datamodule.train_dataset, batch_size=2, shuffle=True)
 
 # Initialize Model
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -36,9 +36,12 @@ for epoch in range(num_epochs):
         images = images.to(device)
         masks = masks.to(device)
 
+        masks = masks.long()
+
         # Forward pass
         outputs = model(images)
         loss = criterion(outputs, masks)
+        print("got to loss")
 
         # Backward and optimize
         optimizer.zero_grad()
