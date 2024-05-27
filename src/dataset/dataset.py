@@ -51,7 +51,7 @@ class MGZDataset(Dataset):
         blue_mask = (y[:, :, 0] == 0) & (y[:, :, 1] == 0) & (y[:, :, 2] == 255)
         labels_single_channel[blue_mask] = 1
         y = labels_single_channel
-        print(f"X shape: {X.shape}, y shape: {y.shape}")
+        # print(f"X shape: {X.shape}, y shape: {y.shape}")
         return (X, y)
 
     def displays(self):
