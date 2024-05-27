@@ -1,4 +1,5 @@
 import sys
+sys.path.append(".")
 import numpy as np
 from pathlib import Path
 from halo import Halo
@@ -14,7 +15,7 @@ sys.path.append(".")
 
 ROOT = Path.cwd()
 
-processed_dir = ROOT / "data" / "processed_exp3"
+processed_dir = ROOT / "data" / "processed"
 raw_dir = ROOT / "data" / "raw"
 
 datamodule = MGZDataModule(
@@ -23,15 +24,19 @@ datamodule = MGZDataModule(
         batch_size=1,
         slice_size=(4, 4),
     )
-
+print("got to prepare data")
 datamodule.prepare_data()
 datamodule.setup("fit")
 train_dataset = datamodule.train_dataset
 val_dataset = datamodule.val_dataset
-all_labels = torch.cat([labels for _, labels in train_dataset])
-# Find unique values in the labels. The number of unique values is the number of classes.
-num_classes = len(torch.unique(all_labels))
-print(f"Number of classes: {num_classes}")
+# unique_labels = set()
+# for _, labels in train_dataset:
+#     unique_labels.update(np.unique(labels))
+#     print(len(unique_labels))
+
+# num_classes = len(unique_labels)
+# print(num_classes)
+# print(f"Number of classes: {num_classes}")
 
 # Hyperparameters
 learning_rate = 0.001
@@ -40,7 +45,7 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 # Model, Loss, Optimizer
 num_channels = 3 #RGB?
-model = UNet(n_channels=num_channels, n_classes=num_classes).to(device)
+model = UNet(n_channels=num_channels, n_classes=3).to(device)
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
@@ -55,10 +60,11 @@ for epoch in range(num_epochs):
         images = images.to(device)
         masks = masks.to(device)
 
+        masks = masks.long()
+
         # Forward pass
         outputs = model(images)
         loss = criterion(outputs, masks)
-
         # Backward pass
         optimizer.zero_grad()
         loss.backward()

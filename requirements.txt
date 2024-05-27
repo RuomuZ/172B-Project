@@ -16,3 +16,4 @@ tifffile
 rich
 wandb
 transformers
+timm

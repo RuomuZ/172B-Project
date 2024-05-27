@@ -5,16 +5,27 @@ from torch.utils.data import DataLoader
 import torch.optim as optim
 import torch.nn as nn
 from pathlib import Path
+from torchvision import transforms
 from src.dataset.datamodule import MGZDataModule
 from models.vit_model import ViTModel  # Importing the ViT model from your file
+from src.dataset.aug import *
 
 # Setup data paths and datamodule
 ROOT = Path.cwd()
 processed_dir = ROOT / "data" / "processed"
 raw_dir = ROOT / "data" / "raw"
+# transform_list = [
+#             transforms.RandomApply([AddNoise()], p=0.5),
+#             transforms.RandomApply([Blur()], p=0.5),
+#             transforms.RandomApply([RandomHFlip()], p=0.5),
+#             transforms.RandomApply([RandomVFlip()], p=0.5),
+#             ToTensor(),
+#             transforms.Resize((224, 224)),
+#         ]
 datamodule = MGZDataModule(processed_dir, raw_dir, batch_size=1, slice_size=(4, 4))  # Ensure slice_size matches ViT input
 datamodule.prepare_data()
 datamodule.setup("fit")
+resize_transform = transforms.Resize((224, 224))
 
 # Create DataLoader
 train_loader = DataLoader(datamodule.train_dataset, batch_size=1, shuffle=True)
@@ -33,11 +44,15 @@ for epoch in range(num_epochs):
     model.train()
     epoch_loss = 0
     for images, masks in train_loader:
+        images = resize_transform(images)
         images = images.to(device)
         masks = masks.to(device)
 
+        masks = masks.long()
+
         # Forward pass
         outputs = model(images)
+        print(outputs.shape, masks.shape)
         loss = criterion(outputs, masks)
 
         # Backward and optimize
