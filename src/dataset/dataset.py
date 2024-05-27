@@ -28,10 +28,10 @@ class MGZDataset(Dataset):
     def __getitem__(self, idx):
         subt = Subtile.load_subtile_by_dir(self.subtile_dirs[idx], self.slice_size)
         X = subt.image.values
-        y = subt.mask.values
+        y = np.squeeze(subt.mask.values, axis=2)
         result = self.transform({"X" : X, "y" : y})
         X = result["X"].permute(2, 0 ,1)
-        y = result["y"].permute(2, 0 ,1)
+        y = result["y"]
         return (X, y)
 
     def displays(self):

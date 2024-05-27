@@ -6,7 +6,7 @@ import xarray as xr
 
 
 sys.path.append(".")
-
+from src.file_utils.preprocess import gt2mask
 #return a list of dirs of images and a list of dirs of masks
 def process_file_name(file_path: Path):
     list_of_mask = list(file_path.glob('*_*'))
@@ -42,6 +42,7 @@ def load_images_masks(list_of_data_dir, list_of_mask_dir):
         a_x = cv2.cvtColor(a_x, cv2.COLOR_BGR2RGB)
         a_y = cv2.resize(a_y, (2480, 3508)).astype(np.float32)
         a_y = cv2.cvtColor(a_y, cv2.COLOR_BGR2RGB)
+        a_y = np.reshape(gt2mask(a_y), (a_y.shape[0], a_y.shape[1], 1))
         print(f"after resize: {a_x.shape}")
         x_array = xr.DataArray(
         data=a_x,
@@ -57,7 +58,7 @@ def load_images_masks(list_of_data_dir, list_of_mask_dir):
         coords={
             "height": range(a_y.shape[0]),
             "width": range(a_y.shape[1]),
-            "band": range(3)})
+            "band": range(1)})
         y_array.attrs["id"] = str(i)
         X.append(x_array)
         y.append(y_array)
