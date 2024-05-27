@@ -33,7 +33,7 @@ class MGZSegmentation(pl.LightningModule):
         logits = self(sat_img)
         print(sat_img)
         print(mask)
-        result = self.loss_function(logits, mask.long())
+        result = self.loss_function(logits.float(), mask.long())
         self.log("loss", result)
         print(result)
         return result
@@ -42,9 +42,10 @@ class MGZSegmentation(pl.LightningModule):
     def validation_step(self, batch, batch_idx):
         sat_img, mask = batch
         pred = self(sat_img)
-        acc = self.accuracy(pred, mask)
-        loss = self.loss_function(pred.float(), mask)
-        self.log_dict({"acc": acc, "val_loss": loss}, on_step=True, on_epoch=True)
+        pred = torch.argmax(pred, dim=1)
+        #acc = self.accuracy(pred, mask)
+        loss = self.loss_function(pred.float(), mask.float())
+        #self.log_dict({"acc": acc, "val_loss": loss}, on_step=True, on_epoch=True)
         return loss
     
     def configure_optimizers(self):

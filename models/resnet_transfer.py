@@ -21,7 +21,10 @@ class FCNResnetTransfer(nn.Module):
                                               self.out_channels, kernel_size=1, stride=1)
         self.pool = nn.MaxPool2d(kernel_size=self.scale_factor)
         self.model = self.model.float()
+        self.soft = nn.Softmax(dim=1)
+
 
     def forward(self, x):
         x = self.model(x.float())
-        return x["out"]
+        x = self.soft(x["out"])
+        return x
