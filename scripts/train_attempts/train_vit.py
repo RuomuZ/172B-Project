@@ -7,21 +7,13 @@ import torch.nn as nn
 from pathlib import Path
 from torchvision import transforms
 from src.dataset.datamodule import MGZDataModule
-from models.vit_model import ViTModel  # Importing the ViT model from your file
+from models.vit_model import Segmenter  # Importing the ViT model from your file
 from src.dataset.aug import *
 
 # Setup data paths and datamodule
 ROOT = Path.cwd()
 processed_dir = ROOT / "data" / "processed"
 raw_dir = ROOT / "data" / "raw"
-# transform_list = [
-#             transforms.RandomApply([AddNoise()], p=0.5),
-#             transforms.RandomApply([Blur()], p=0.5),
-#             transforms.RandomApply([RandomHFlip()], p=0.5),
-#             transforms.RandomApply([RandomVFlip()], p=0.5),
-#             ToTensor(),
-#             transforms.Resize((224, 224)),
-#         ]
 datamodule = MGZDataModule(processed_dir, raw_dir, batch_size=1, slice_size=(4, 4))  # Ensure slice_size matches ViT input
 datamodule.prepare_data()
 datamodule.setup("fit")
@@ -32,7 +24,7 @@ train_loader = DataLoader(datamodule.train_dataset, batch_size=1, shuffle=True)
 
 # Initialize Model
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-model = ViTModel(input_channels=3, num_classes=3).to(device)
+model = Segmenter(input_channels=3, num_classes=3).to(device)
 
 # Loss and Optimizer
 criterion = nn.CrossEntropyLoss()
@@ -46,13 +38,13 @@ for epoch in range(num_epochs):
     for images, masks in train_loader:
         images = resize_transform(images)
         images = images.to(device)
+        masks = resize_transform(masks)
         masks = masks.to(device)
 
         masks = masks.long()
 
         # Forward pass
         outputs = model(images)
-        print(outputs.shape, masks.shape)
         loss = criterion(outputs, masks)
 
         # Backward and optimize
