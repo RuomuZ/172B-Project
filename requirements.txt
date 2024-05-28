@@ -17,3 +17,6 @@ rich
 wandb
 transformers
 timm
+tensorboard
+onnx
+torchsummary

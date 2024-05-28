@@ -5,36 +5,46 @@ from timm import create_model
 import torch.onnx
 from torchsummary import summary
 
+class ASPP(nn.Module):
+    def __init__(self, in_channels, out_channels):
+        super(ASPP, self).__init__()
+        self.atrous_block1 = nn.Conv2d(in_channels, out_channels, kernel_size=1)
+        self.atrous_block6 = nn.Conv2d(in_channels, out_channels, kernel_size=3, padding=6, dilation=6)
+        self.atrous_block12 = nn.Conv2d(in_channels, out_channels, kernel_size=3, padding=12, dilation=12)
+        self.atrous_block18 = nn.Conv2d(in_channels, out_channels, kernel_size=3, padding=18, dilation=18)
+        self.conv_1x1_output = nn.Conv2d(out_channels * 4, out_channels, kernel_size=1)
+
+    def forward(self, x):
+        x1 = self.atrous_block1(x)
+        x2 = self.atrous_block6(x)
+        x3 = self.atrous_block12(x)
+        x4 = self.atrous_block18(x)
+        x = torch.cat([x1, x2, x3, x4], dim=1)
+        x = self.conv_1x1_output(x)
+        return x
 
 class Segmenter(nn.Module):
     def __init__(self, backbone_name='vit_base_patch16_224', num_classes=3, input_channels=3):
         super(Segmenter, self).__init__()
         self.backbone = create_model(backbone_name, pretrained=True)
         
-        # Adjust the first convolution layer to accept different input channels
         if input_channels != 3:
-            self.backbone.patch_embed.proj = nn.Conv2d(input_channels, self.backbone.embed_dim, kernel_size=16, stride=16)
+            self.backbone.patch_embed.proj = nn.Conv2d(input_channels, self.backbone.embed_dim, kernel_size=16, stride=16, dilation=2, padding=2)
 
         self.num_classes = num_classes
+        self.aspp = ASPP(self.backbone.embed_dim, self.backbone.embed_dim)
         self.linear_decoder = nn.Conv2d(self.backbone.embed_dim, num_classes, kernel_size=1)
 
     def forward(self, x):
-        print(f"Input shape: {x.shape}")
         B, C, H, W = x.shape
-        features = self.backbone.forward_features(x)  # Extract features using ViT
-        # print(f"Features shape: {features.shape}")
-        # Exclude the classification token
+        features = self.backbone.forward_features(x)
         features = features[:, 1:]
-        # print(f"Features shape without classification token: {features.shape}")
         n_patches = features.shape[1]
-        # Calculate the spatial dimensions of the patch grid
         grid_size = int(n_patches ** 0.5)
-        features = features.permute(0, 2, 1).view(B, -1, grid_size, grid_size)  # Reshape to 2D feature map
-        # print(f"Reshaped features shape: {features.shape}")
-        logits = self.linear_decoder(features)  # Linear decoding to get class scores for each pixel
-        # print(f"Logits shape before upsampling: {logits.shape}")
-        logits = nn.functional.interpolate(logits, size=(H, W), mode='bilinear', align_corners=False)  # Upsample to match input size
-        # print(f"Logits shape after upsampling: {logits.shape}")
+        features = features.permute(0, 2, 1).view(B, -1, grid_size, grid_size)
+        features = self.aspp(features)
+        logits = self.linear_decoder(features)
+        logits = nn.functional.interpolate(logits, size=(H, W), mode='bilinear', align_corners=False)
         return logits
 
 # # Create a single dummy image and label for 3 classes with different input channels
@@ -52,7 +62,6 @@ class Segmenter(nn.Module):
 # optimizer.zero_grad()
 # output = model(dummy_image)
 # print(f"Output shape: {output.shape}")
-# # torch.onnx.export(model, dummy_image, "model.onnx", opset_version=14)
 # output = output.permute(0, 2, 3, 1).reshape(-1, 3)  # Reshape for cross-entropy loss
 # dummy_label = dummy_label.view(-1)  # Flatten labels
 # loss = criterion(output, dummy_label)
