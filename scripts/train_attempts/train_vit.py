@@ -24,7 +24,7 @@ train_loader = DataLoader(datamodule.train_dataset, batch_size=1, shuffle=True)
 
 # Initialize Model
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-model = Segmenter(input_channels=3, num_classes=3).to(device)
+model = Segmenter(input_channels=3, num_classes=3, freeze_backbone=True).to(device)
 
 # Loss and Optimizer
 criterion = nn.CrossEntropyLoss()

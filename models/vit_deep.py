@@ -24,13 +24,16 @@ class ASPP(nn.Module):
         return x
 
 class Segmenter(nn.Module):
-    def __init__(self, backbone_name='vit_base_patch16_224', num_classes=3, input_channels=3):
+    def __init__(self, backbone_name='vit_base_patch16_224', num_classes=3, input_channels=3, freeze_backbone=False):
         super(Segmenter, self).__init__()
         self.backbone = create_model(backbone_name, pretrained=True)
         
         if input_channels != 3:
             self.backbone.patch_embed.proj = nn.Conv2d(input_channels, self.backbone.embed_dim, kernel_size=16, stride=16, dilation=2, padding=2)
 
+        if freeze_backbone:
+            for param in self.backbone.parameters():
+                param.requires_grad = False
         self.num_classes = num_classes
         self.aspp = ASPP(self.backbone.embed_dim, self.backbone.embed_dim)
         self.linear_decoder = nn.Conv2d(self.backbone.embed_dim, num_classes, kernel_size=1)
