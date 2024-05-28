@@ -13,7 +13,7 @@ class ESDConfig:
     processed_dir: Path = ROOT / "data" / "processed"
     raw_dir: Path = ROOT / "data" / "raw"
     results_dir: Path = ROOT / "data" / "predictions" / MODEL
-    accelerator: str = "cpu"
+    accelerator: str = "gpu"
     batch_size: int = 2
     depth: int = 2
     devices: int = 1
@@ -25,10 +25,10 @@ class ESDConfig:
     model_path: Path = ROOT / "models" / MODEL / "last.ckpt"
     model_type: str = MODEL
     n_encoders: int = 2
-    num_workers: int = 1
+    num_workers: int = 7
     out_channels: int = 3 
     pool_sizes: str = "5,5,2"
     seed: int = 12378921
-    slice_size: tuple = (8, 8)
-    wandb_run_name: str | None = None
+    slice_size: tuple = (4, 4)
+
 
