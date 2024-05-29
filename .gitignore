@@ -4,3 +4,4 @@ test/
 __pycache__/
 wandb/
 segformer_model.pth
+unet_model.pth
