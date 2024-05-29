@@ -4,10 +4,12 @@ import torchvision.models as models
 from torchvision.models.segmentation.deeplabv3 import DeepLabV3_ResNet50_Weights
 
 class DeepLabV3ResNet50(nn.Module):
-    def __init__(self, num_classes=21):
+    def __init__(self, num_classes=21, num_channels=3):
         super(DeepLabV3ResNet50, self).__init__()
         # Load pre-trained DeepLabV3 model with ResNet50 backbone
         self.model = models.segmentation.deeplabv3_resnet50(weights=DeepLabV3_ResNet50_Weights.COCO_WITH_VOC_LABELS_V1)
+        if num_channels != 3:
+            self.model.backbone.conv1 = nn.Conv2d(num_channels, 64, kernel_size=7, stride=2, padding=3, bias=False)
         # Modify the classifier to change the number of output classes
         self.model.classifier[4] = nn.Conv2d(256, num_classes, kernel_size=1)
 

@@ -7,6 +7,7 @@ import torch.nn as nn
 from pathlib import Path
 from src.dataset.datamodule import MGZDataModule
 from models.segformer import SegFormerModel  # Importing your SegFormer model
+import torch.nn.functional as F
 
 # Setup data paths and datamodule
 ROOT = Path.cwd()
@@ -36,9 +37,20 @@ for epoch in range(num_epochs):
         images = images.to(device)
         masks = masks.to(device)
 
+        masks = masks.long()
+
         # Forward pass
         outputs = model(images)
-        loss = criterion(outputs, masks)
+
+        # Debugging shapes
+        # print("Output shape before interpolation:", outputs.shape)
+        # print("Mask shape expected:", masks.shape)
+
+        # Interpolating to match mask size
+        outputs = F.interpolate(outputs, size=(masks.shape[1], masks.shape[2]), mode='bilinear', align_corners=False)
+
+        # Compute loss
+        loss = criterion(outputs, masks)  # No squeeze needed since masks are already [batch_size, height, width]
 
         # Backward and optimize
         optimizer.zero_grad()
@@ -49,5 +61,4 @@ for epoch in range(num_epochs):
 
     print(f"Epoch [{epoch+1}/{num_epochs}], Loss: {epoch_loss / len(train_loader)}")
 
-# Save the model
 torch.save(model.state_dict(), "segformer_model.pth")

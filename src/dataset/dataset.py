@@ -25,6 +25,15 @@ class MGZDataset(Dataset):
         return len(self.subtile_dirs)
 
 
+    # def __getitem__(self, idx):
+    #     subt = Subtile.load_subtile_by_dir(self.subtile_dirs[idx], self.slice_size)
+    #     X = subt.image.values
+    #     y = subt.mask.values
+    #     result = self.transform({"X" : X, "y" : y})
+    #     X = result["X"].permute(2, 0 ,1)
+    #     y = result["y"].permute(2, 0 ,1)
+    #     return (X, y)
+    
     def __getitem__(self, idx):
         subt = Subtile.load_subtile_by_dir(self.subtile_dirs[idx], self.slice_size)
         X = subt.image.values

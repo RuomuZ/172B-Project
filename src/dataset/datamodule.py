@@ -89,6 +89,7 @@ class MGZDataModule(pl.LightningDataModule):
 
     def setup(self, stage: str) -> None:
         if stage == "fit":
+            print(self.train_dir, self.val_dir)
             self.train_dataset = MGZDataset(self.train_dir, self.transform, self.slice_size)
             self.val_dataset = MGZDataset(self.val_dir, self.transform, self.slice_size)
 
@@ -97,4 +98,4 @@ class MGZDataModule(pl.LightningDataModule):
         return torch.utils.data.DataLoader(self.train_dataset, batch_size=self.batch_size, collate_fn=collate_fn, num_workers = self.num_workers)
 
     def val_dataloader(self) -> torch.utils.data.DataLoader:
-        return torch.utils.data.DataLoader(self.train_dataset, batch_size=self.batch_size, collate_fn=collate_fn, num_workers = self.num_workers)
+        return torch.utils.data.DataLoader(self.val_dataset, batch_size=self.batch_size, collate_fn=collate_fn, num_workers = self.num_workers)
