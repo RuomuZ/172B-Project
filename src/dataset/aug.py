@@ -13,6 +13,14 @@ def apply_per_band(img, transform):
 
     return result
 
+class Gray(object):
+    def __init__(self):
+        pass
+    def __call__(self, sample: Dict[str, np.ndarray]) -> Dict[str, np.ndarray]:
+        img, mask = sample["X"].copy(), sample["y"].copy()
+        img = np.expand_dims(cv2.cvtColor(img, cv2.COLOR_RGB2GRAY), axis=2)
+        return {"X":img, "y":mask}
+
 
 class Blur(object):
     """
