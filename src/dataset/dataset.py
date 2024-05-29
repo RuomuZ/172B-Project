@@ -30,7 +30,9 @@ class MGZDataset(Dataset):
         X = subt.image.values
         y = np.squeeze(subt.mask.values, axis=2)
         result = self.transform({"X" : X, "y" : y})
-        X = result["X"].permute(2, 0 ,1)
+        X = result["X"]
+        if len(X.shape) == 3:
+            X = X.permute(2, 0 ,1)
         y = result["y"]
         return (X, y)
 

@@ -16,24 +16,18 @@ ROOT = Path.cwd()
 processed_dir = ROOT / "data" / "processed"
 raw_dir = ROOT / "data" / "raw"
 from src.dataset.aug import Blur, RandomHFlip, RandomVFlip, ToTensor
-transform_list = [
-    Blur(),
-    RandomHFlip(),
-    RandomVFlip(),
-    ToTensor()
-]
+
 
 def main():
     datamodule = MGZDataModule(processed_dir,
         raw_dir,
         batch_size=1,
-        slice_size=(4, 4),
-        transform_list=transform_list
+        slice_size=(4, 4)
     )
     datamodule.prepare_data()
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     model = DeepLabV3ResNet50(num_classes=3)
-    model.load_state_dict(torch.load("deeplabV3_model.pth"))
+    model.load_state_dict(torch.load("deeplabV3_model1.pth"))
     model.eval()
     model = model.to(device)
     datamodule.setup("fit")
