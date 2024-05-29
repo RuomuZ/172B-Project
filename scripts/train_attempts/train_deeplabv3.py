@@ -37,7 +37,6 @@ model = model.to(device)
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters(), lr=0.0001)
 total_iou = 0
-
 # Training Loop
 num_epochs = 5
 for epoch in range(num_epochs):
