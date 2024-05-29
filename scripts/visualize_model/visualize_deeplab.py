@@ -32,7 +32,7 @@ def main():
     model = model.to(device)
     datamodule.setup("fit")
     eval_dataset = datamodule.val_dataset
-    img, mask = eval_dataset[23]
+    img, mask = eval_dataset[30]
 
     img, mask = img.unsqueeze(0).to(device), mask.to(device)
     pred = model(img)
@@ -45,7 +45,7 @@ def main():
     print(type(img))
     img = np.uint8(torch.squeeze(img, 0).permute(1, 2, 0))
     pred = np.uint8(torch.squeeze(pred, 0).argmax(dim=0))
-    ax[0,0].imshow(img)
+    ax[0,0].imshow(img, cmap='gray', vmin=0, vmax=255)
     ax[0,1].imshow(mask)
     ax[0,2].imshow(pred)
     plt.show()
