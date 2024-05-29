@@ -20,3 +20,4 @@ timm
 tensorboard
 onnx
 torchsummary
+unet_model.pth
