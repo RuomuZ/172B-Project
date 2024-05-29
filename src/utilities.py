@@ -30,5 +30,5 @@ class ESDConfig:
     pool_sizes: str = "5,5,2"
     seed: int = 12378921
     slice_size: tuple = (4, 4)
-    wandb_run_name: str | None = None
+
 

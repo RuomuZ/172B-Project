@@ -47,6 +47,7 @@ class MGZDataModule(pl.LightningDataModule):
             torchvision_transforms.RandomApply([Blur()], p=0.5),
             torchvision_transforms.RandomApply([RandomHFlip()], p=0.5),
             torchvision_transforms.RandomApply([RandomVFlip()], p=0.5),
+            Gray(),
             ToTensor(),
         ],
         num_workers = 3

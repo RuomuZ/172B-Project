@@ -37,25 +37,12 @@ class MGZDataset(Dataset):
     def __getitem__(self, idx):
         subt = Subtile.load_subtile_by_dir(self.subtile_dirs[idx], self.slice_size)
         X = subt.image.values
-        y = subt.mask.values
+        y = np.squeeze(subt.mask.values, axis=2)
         result = self.transform({"X" : X, "y" : y})
-        X = result["X"].permute(2, 0 ,1)
+        X = result["X"]
+        if len(X.shape) == 3:
+            X = X.permute(2, 0 ,1)
         y = result["y"]
-
-        #IF TRAINING NOT WORKING FOR  ANYTHING  OTHER THAN VIT< UNCOMMENT THE ABOVE 3 LINES AND COMMENT THE BELOW 1 LINE
-        
-        # X = self.transform(X).permute(2, 0, 1)
-        labels_single_channel = np.full(y.shape[:2], 2, dtype=int)  # Default to class 2
-
-        # Class 0: Red only (255, 0, 0)
-        red_mask = (y[:, :, 0] == 255) & (y[:, :, 1] == 0) & (y[:, :, 2] == 0)
-        labels_single_channel[red_mask] = 0
-
-        # Class 1: Blue only (0, 0, 255)
-        blue_mask = (y[:, :, 0] == 0) & (y[:, :, 1] == 0) & (y[:, :, 2] == 255)
-        labels_single_channel[blue_mask] = 1
-        y = labels_single_channel
-        # print(f"X shape: {X.shape}, y shape: {y.shape}")
         return (X, y)
 
     def displays(self):

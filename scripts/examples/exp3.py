@@ -36,7 +36,7 @@ te = datamodule.val_dataset
 print(len(tr))
 print(len(te))
 # Display image and label.
-train_feature, train_label = tr[2]
+train_feature, train_label = tr[100]
 print(f"Feature batch shape: {train_feature.shape}")
 print(f"Labels batch shape: {train_label.shape}")
 #label = train_labels[0].squeeze()
@@ -45,6 +45,7 @@ train_feature = np.uint8(train_feature.permute(1, 2, 0))
 train_label = np.uint8(np.transpose(train_label, (1, 2, 0)))
 print(train_label.shape)
 print(train_feature.shape)
+print(train_label)
 ax[0,0].imshow(train_feature)
 ax[0,1].imshow(train_label)
 plt.show()
