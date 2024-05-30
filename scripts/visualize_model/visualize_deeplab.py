@@ -26,7 +26,7 @@ def main():
     )
     datamodule.prepare_data()
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    model = DeepLabV3ResNet50(num_classes=3)
+    model = DeepLabV3ResNet50(num_classes=3, num_channels=1)
     model.load_state_dict(torch.load("deeplabV3_model1.pth"))
     model.eval()
     model = model.to(device)
