@@ -5,7 +5,7 @@ from src.dataset.datamodule import MGZDataModule
 from torch.utils.data import DataLoader
 import torch.nn.functional as F
 from pathlib import Path
-from models.segformer import SegFormerModel  # Assuming your model is in this path
+from models.segformer import SegFormerModel 
 if __name__ == '__main__':
     ROOT = Path.cwd()
     processed_dir = ROOT / "data" / "processed"
@@ -18,8 +18,10 @@ if __name__ == '__main__':
 
     # Initialize Model
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = SegFormerModel(input_channels=3, num_classes=3).to(device)
-    model.load_state_dict(torch.load("segformer_model.pth"))  # Load trained model
+    model = SegFormerModel(input_channels=1, num_classes=3).to(device)
+    state_dict = torch.load("segformer_model_1ch.pth")
+    new_state_dict = {k.replace("module.", ""): v for k, v in state_dict.items()}
+    model.load_state_dict(new_state_dict)
     model.eval()
 
     # Validation loop

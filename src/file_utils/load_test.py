@@ -7,7 +7,7 @@ import torch
 
 sys.path.append(".")
 
-def calculate_slice_index(x: int, y: int, slice_size: tuple, length: tuple):
+def calculate_slice_index(x: int, y: int, slice_size: tuple, length: tuple, ):
     # calculate the start and end indices for the slice based
     # on the slice_size and the x and y coordinates
     start_index = (
@@ -52,12 +52,11 @@ def load_image(image_path):
     return img
 
 
-def load_and_process_test(model, data_dir, device, slice_size = (4, 4), gray=False):
+def load_and_process_test(model, data_dir, device, slice_size = (4, 4), gray=False, resize_to=None):
     original_image = load_image(data_dir)
     a_x = original_image.copy()
     if a_x.shape[0] < a_x.shape[1]:
         a_x = np.swapaxes(a_x, 0, 1)
-    a_x = cv2.resize(a_x, (2480, 3508)).astype(np.float32)
     if gray:
         a_x = np.expand_dims(cv2.cvtColor(a_x, cv2.COLOR_RGB2GRAY), axis=2)
     processed_image = a_x.copy()
@@ -66,13 +65,19 @@ def load_and_process_test(model, data_dir, device, slice_size = (4, 4), gray=Fal
         col_x = []
         for y in range(slice_size[1]):
             subtile = (get_subtile_from_parent_image(a_x, x, y, slice_size))
+            original_subtile_size = subtile.shape[:2]
+            if resize_to is not None:
+                subtile = cv2.resize(subtile, resize_to).astype(np.float32)
             if gray:
                 subtile = torch.from_numpy(subtile).squeeze(dim=2).unsqueeze(dim=0).unsqueeze(dim=0).to(device)
             else:
                 subtile = torch.from_numpy(subtile).permute(2, 0, 1).unsqueeze(dim=0).to(device)
+            subtile = subtile.float()  # Convert to float
             pred = model(subtile)
             pred = pred.detach().cpu()
             pred = np.uint8(torch.squeeze(pred, 0).argmax(dim=0))
+            if resize_to is not None:
+                pred = cv2.resize(pred, original_subtile_size[::-1])  # Resize back to original size
             col_x.append(pred)
         row_x.append(np.concatenate(col_x, axis=1))
     full_mask = np.concatenate(row_x, axis=0)
