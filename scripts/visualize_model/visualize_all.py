@@ -1,6 +1,7 @@
 
 import sys
 sys.path.append(".")
+import os
 import torch
 from torch.nn import functional as F
 import matplotlib.pyplot as plt
@@ -42,6 +43,7 @@ pth_files = {
 
 for ch, model_files in pth_files.items():
     print(f"Evaluating {ch} models")
+    ROOT = Path.cwd()
     input_channels = 1 if ch == "1ch" else 3
     for model_name, model_class in models.items():
         if model_name in model_files:
@@ -64,30 +66,35 @@ for ch, model_files in pth_files.items():
                 gray = True
             else:
                 gray = False
+            resize = None
             for image_file in image_files:
+                if model_name == "ViTDeep" or model_name == "ViTDeep_unfrozen": 
+                    resize = (224, 224)
                 img, processed_image, pred = load_and_process_test(
                     model, Path(ROOT / "data" / "test" / image_file), 
                     device, 
-                    (4, 4), gray=gray)
+                    (4, 4), 
+                    gray=gray,
+                    resize_to=resize)
                 fig, ax = plt.subplots(1, 3, figsize=(4, 4), squeeze=False, tight_layout=True)
                 ax[0,0].imshow(img)
                 ax[0,1].imshow(processed_image, cmap="gray")
                 ax[0,2].imshow(pred)
 
+                image_file_name, _ = os.path.splitext(image_file)
+
                 # Save the plot in the 'preds' folder
-                plt.savefig(f'preds/{model_name}_{ch}_prediction.png')
+                plt.savefig(f'preds/{model_name}_{ch}_{image_file_name}_prediction.png')
 
                 plt.show()
+                plt.close(fig)
 
                             # Load image
                 # image = cv2.imread(image_file)
                 # image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
                 # image = transforms.ToTensor()(image).unsqueeze(0).to(device)
 
-                # Resize if necessary
-                # if model_name == "ViTDeep" or model_name == "ViTDeep_unfrozen": 
-                #     resize_transform = transforms.Resize((224, 224))
-                #     image = resize_transform(image)
+                # Resize if necessar
 
                 # # Make prediction
                 # with torch.no_grad():
