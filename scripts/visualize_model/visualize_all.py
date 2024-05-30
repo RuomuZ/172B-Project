@@ -15,8 +15,7 @@ from models.deeplabV3 import DeepLabV3ResNet50 as DeepLabV3Model
 from src.dataset.aug import *
 
 # Assume image_files is a list of image file paths
-# image_files = ["1.jpg", "2.png", "3.jpg", "4.jpg", "5.jpeg", "putin_img.jpg"]
-image_files = ["farsi.jpg", "chinese.jpg"]
+image_files = ["1.jpg", "2.png", "3.jpg", "4.jpg", "5.jpeg", "putin_img.jpg", "farsi.jpg", "chinese.jpg"]
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -77,10 +76,12 @@ for ch, model_files in pth_files.items():
                     (4, 4), 
                     gray=gray,
                     resize_to=resize)
-                fig, ax = plt.subplots(1, 3, figsize=(4, 4), squeeze=False, tight_layout=True)
+                fig, ax = plt.subplots(1, 2, figsize=(8, 4), squeeze=False, tight_layout=True)
                 ax[0,0].imshow(img)
-                ax[0,1].imshow(processed_image, cmap="gray")
-                ax[0,2].imshow(pred)
+                ax[0,1].imshow(pred)
+                # ax[0,2].imshow(pred)
+                ax[0,0].set_title('Original Image')
+                ax[0,1].set_title(f'Prediction ({model_name}_{ch})')
 
                 image_file_name, _ = os.path.splitext(image_file)
 
