@@ -15,7 +15,8 @@ from models.deeplabV3 import DeepLabV3ResNet50 as DeepLabV3Model
 from src.dataset.aug import *
 
 # Assume image_files is a list of image file paths
-image_files = ["1.jpg", "2.png", "3.jpg", "4.jpg", "5.jpeg"]
+image_files = ["1.jpg", "2.png", "3.jpg", "4.jpg", "5.jpeg", "putin_img.jpg"]
+# image_files = ["putin_img.jpg"]
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
