@@ -12,8 +12,9 @@ from src.dataset.datamodule import MGZDataModule
 from models.unet import UNet
 import logging
 from sklearn.metrics import jaccard_score
+from src.dataset.aug import *
 
-logging.basicConfig(filename='trainingUNET.log', level=logging.INFO,
+logging.basicConfig(filename='trainingUNET_3ch.log', level=logging.INFO,
                     format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
 
 
@@ -21,16 +22,24 @@ sys.path.append(".")
 
 ROOT = Path.cwd()
 
-processed_dir = ROOT / "data" / "processed"
+processed_dir = ROOT / "data" / "processedRGB"
 raw_dir = ROOT / "data" / "raw"
+
+transform_list = [
+    Blur(),
+    RandomHFlip(),
+    RandomVFlip(),
+    ToTensor()
+]
 
 datamodule = MGZDataModule(
         processed_dir,
         raw_dir,
         batch_size=8,
         slice_size=(4, 4),
+        transform_list=transform_list
     )
-print("got to prepare data")
+
 datamodule.prepare_data()
 datamodule.setup("fit")
 train_dataset = datamodule.train_dataset
@@ -46,7 +55,7 @@ val_dataset = datamodule.val_dataset
 
 # Hyperparameters
 learning_rate = 0.001
-num_epochs = 5
+num_epochs = 10
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 # Model, Loss, Optimizer
@@ -104,6 +113,7 @@ for epoch in range(num_epochs):
     avg_val_loss = val_loss / len(val_loader)
     print(f"Epoch [{epoch+1}/{num_epochs}], Loss: {avg_loss}, IoU: {avg_iou_score}, Val Loss: {avg_val_loss}")
     logging.info(f"Epoch [{epoch+1}/{num_epochs}], Loss: {avg_loss}, IoU: {avg_iou_score}, Val Loss: {avg_val_loss}")
+    torch.save(model.state_dict(), "unet_model_3ch.pth")
 
 # Save the model checkpoint
-torch.save(model.state_dict(), "unet_model.pth")
+torch.save(model.state_dict(), "unet_model_3ch.pth")

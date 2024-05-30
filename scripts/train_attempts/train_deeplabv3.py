@@ -9,15 +9,22 @@ import logging
 from src.dataset.datamodule import MGZDataModule
 from models.deeplabV3 import DeepLabV3ResNet50  # Importing the DeepLabV3 model from your file
 from sklearn.metrics import jaccard_score
+from src.dataset.aug import *
 
-logging.basicConfig(filename='trainingDeepLabV3.log', level=logging.INFO,
+logging.basicConfig(filename='trainingDeepLabV3_3ch.log', level=logging.INFO,
                     format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
 
 # Setup data paths and datamodule
 ROOT = Path.cwd()
-processed_dir = ROOT / "data" / "processed"
+processed_dir = ROOT / "data" / "processedRGB"
 raw_dir = ROOT / "data" / "raw"
-datamodule = MGZDataModule(processed_dir, raw_dir, batch_size=8, slice_size=(4, 4))  # Ensure slice_size matches DeepLabV3 input
+transform_list = [
+    Blur(),
+    RandomHFlip(),
+    RandomVFlip(),
+    ToTensor()
+]
+datamodule = MGZDataModule(processed_dir, raw_dir, batch_size=8, slice_size=(4, 4), transform_list=transform_list)  # Ensure slice_size matches DeepLabV3 input
 datamodule.prepare_data()
 datamodule.setup("fit")
 
@@ -27,7 +34,7 @@ val_loader = DataLoader(datamodule.val_dataset, batch_size=8, shuffle=False)
 
 # Initialize Model
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-model = DeepLabV3ResNet50(num_classes=3) # Adjust num_classes as needed
+model = DeepLabV3ResNet50(num_channels=3, num_classes=3) # Adjust num_classes as needed
 if torch.cuda.device_count() > 1:
     print("Let's use", torch.cuda.device_count(), "GPUs!")
     model = nn.DataParallel(model)
@@ -38,7 +45,7 @@ criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters(), lr=0.0001)
 total_iou = 0
 # Training Loop
-num_epochs = 5
+num_epochs = 10
 for epoch in range(num_epochs):
     model.train()
     epoch_loss = 0
@@ -77,5 +84,6 @@ for epoch in range(num_epochs):
 
     print(f"Epoch [{epoch+1}/{num_epochs}], Training Loss: {epoch_loss / len(train_loader)}, Validation Loss: {val_loss}, IoU: {iou_score}")
     logging.info(f"Epoch [{epoch+1}/{num_epochs}], Training Loss: {epoch_loss / len(train_loader)}, Validation Loss: {val_loss}, IoU: {iou_score}")
+    torch.save(model.state_dict(), "deeplabV3_model_3ch.pth")
 # Save the model
-torch.save(model.state_dict(), "deeplabV3_model.pth")
+torch.save(model.state_dict(), "deeplabV3_model_3ch.pth")

@@ -6,3 +6,4 @@ wandb/
 segformer_model.pth
 unet_model.pth
 deeplabV3_model.pth
+*.pth

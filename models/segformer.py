@@ -5,6 +5,7 @@ import torch
 class SegFormerModel(nn.Module):
     def __init__(self, input_channels=3, num_classes=3, model_name='nvidia/segformer-b0-finetuned-ade-512-512', **kwargs):
         super(SegFormerModel, self).__init__()
+        self.input_conv = nn.Conv2d(input_channels, 3, kernel_size=1)  # New 1x1 conv layer
         self.segformer = SegformerForSemanticSegmentation.from_pretrained(model_name, **kwargs)
         
         # Adjust the classifier within the decode_head
@@ -16,6 +17,7 @@ class SegFormerModel(nn.Module):
         )
 
     def forward(self, x):
+        x = self.input_conv(x) 
         outputs = self.segformer(x)
         return outputs.logits
 
